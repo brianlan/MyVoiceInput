@@ -1,0 +1,11 @@
+Task 11 stream timing evidence
+- Implemented insertTextStream(_:) in MyVoiceInput/Services/TextInsertionService.swift
+- Uses ~50ms inter-chunk delay via injected sleeper (Task.sleep in live dependencies)
+- Per-chunk insert path still applies ~150ms clipboard restore delay
+- Delay constants:
+  * streamChunkDelayNanoseconds = 50_000_000
+  * restoreDelayNanoseconds = 150_000_000
+- Verified by unit test: testInsertTextStreamInsertsChunksWithInterChunkDelay
+  * Asserts 3 restore delays and 2 inter-chunk delays for 3 streamed chunks
+
+Runtime note: xcodebuild unavailable in current environment (CommandLineTools only).

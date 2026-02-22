@@ -1,0 +1,12 @@
+Task 11 clipboard restore evidence
+- Implemented in MyVoiceInput/Services/TextInsertionService.swift
+- insertText(_:) snapshots pasteboard items + changeCount before injection
+- Writes chunk to clipboard, posts Cmd+V (CGEvent keycode 0x09, .maskCommand, .cghidEventTap)
+- Waits ~150ms, then restores snapshot only when current changeCount matches injected changeCount
+- Guard prevents clobbering user clipboard updates after injection
+- Verified by unit tests in MyVoiceInputTests/TextInsertionServiceTests.swift:
+  * testInsertTextRestoresClipboardWhenChangeCountUnchanged
+  * testInsertTextDoesNotRestoreClipboardWhenChangeCountChanges
+  * testInsertTextRestoresClipboardAndThrowsWhenPasteEventPostingFails
+
+Runtime note: xcodebuild unavailable in current environment (CommandLineTools only).

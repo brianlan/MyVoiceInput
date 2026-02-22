@@ -1,0 +1,17 @@
+Task 8 - MP3 encode structural verification
+
+Validation logic used in MP3EncoderServiceTests.testEncodeReturnsMP3DataWithExpectedHeader:
+
+1) Encoded data must be non-empty.
+2) Header must match either:
+   - ID3 tag bytes: 0x49 0x44 0x33 ("ID3"), OR
+   - MPEG sync bytes: 0xFF 0xFB
+
+Implementation reference:
+- MyVoiceInputTests/MP3EncoderServiceTests.swift
+- helper: hasMP3Header(_ data: Data)
+
+Execution note:
+- Runtime test execution may be blocked in this environment if full Xcode.app is unavailable.
+- Static verification completed by confirming test logic and service wiring in source.
+- Current build command result: `xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory '/Library/Developer/CommandLineTools' is a command line tools instance`

@@ -1,0 +1,14 @@
+xcodebuild test attempt
+xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory '/Library/Developer/CommandLineTools' is a command line tools instance
+
+static validation
+28:final class AudioCaptureService: AudioCaptureServiceProtocol, @unchecked Sendable {
+30:        static let commonFormat: AVAudioCommonFormat = .pcmFormatFloat32
+68:    func startCapture() async throws {
+104:            engine.inputNode.removeTap(onBus: 0)
+114:    func stopCapture() async -> Data? {
+125:        engine.inputNode.removeTap(onBus: 0)
+6:final class AudioCaptureServiceTests: XCTestCase {
+7:    func testStartCaptureSetsIsCapturingTrue() async throws {
+21:    func testStopCaptureReturnsBufferedPCMDataAndResetsState() async throws {
+38:    func testStopCaptureWhenNotCapturingReturnsNil() async {

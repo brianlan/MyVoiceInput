@@ -1,0 +1,13 @@
+Task 8 - Empty input verification
+
+Covered by test:
+- MyVoiceInputTests/MP3EncoderServiceTests.swift
+- testEncodeThrowsOnEmptyInput()
+
+Expected behavior:
+- Calling encode(pcmData: Data(), sampleRate: 44_100)
+- Throws EncodingError.emptyInput
+
+Implementation reference:
+- MyVoiceInput/Services/MP3EncoderService.swift
+- guard !pcmData.isEmpty else { throw EncodingError.emptyInput }

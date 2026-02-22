@@ -1,0 +1,4 @@
+frontmost_after_click=iTerm2
+frontmost_after_cmdcomma=iTerm2
+window_count=0
+window_names=

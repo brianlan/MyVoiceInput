@@ -1,0 +1,1 @@
+MyVoiceInput needs access to your microphone to transcribe your voice into text.

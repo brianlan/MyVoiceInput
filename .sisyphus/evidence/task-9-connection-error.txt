@@ -1,0 +1,6 @@
+
+## 2026-02-21T23:50:40.463244
+- Implemented `TranscriptionServiceTests.testTranscribeThrowsOnConnectionFailure` in `MyVoiceInputTests/TranscriptionServiceTests.swift`.
+- URLProtocol stub returns `URLError(.notConnectedToInternet)` and test asserts thrown URLError code.
+- Runtime execution blocked: xcodebuild unavailable in this environment (CommandLineTools-only).
+- Blocker output: xcode-select: error: tool xcodebuild requires Xcode, but active developer directory /Library/Developer/CommandLineTools is a command line tools instance

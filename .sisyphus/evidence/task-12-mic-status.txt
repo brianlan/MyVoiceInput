@@ -1,0 +1,23 @@
+Task 12 - Microphone Permission Status Evidence
+Date: 2026-02-21
+
+Environment:
+- swift --version: Apple Swift version 6.2.3
+- xcodebuild unavailable in this environment (CommandLineTools only)
+
+Static validation from PermissionManager.swift:
+- macOS 14+ path uses AVAudioApplication.shared.recordPermission
+- macOS 14+ request path uses AVAudioApplication.requestRecordPermission(...)
+- Fallback status path uses AVCaptureDevice.authorizationStatus(for: .audio)
+- Fallback request path uses AVCaptureDevice.requestAccess(for: .audio, ...)
+
+Source anchors:
+- MyVoiceInput/Services/PermissionManager.swift:22
+- MyVoiceInput/Services/PermissionManager.swift:27
+- MyVoiceInput/Services/PermissionManager.swift:37
+- MyVoiceInput/Services/PermissionManager.swift:40
+- MyVoiceInput/Services/PermissionManager.swift:65
+- MyVoiceInput/Services/PermissionManager.swift:81
+
+Note:
+- Runtime prompt execution not performed due missing full Xcode/xcodebuild.

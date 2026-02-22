@@ -1,0 +1,13 @@
+Task Fix: TranscriptionServiceTests.swift - URLProtocol task property conflict
+
+CHANGE MADE:
+- Renamed `private var task: Task<Void, Never>?` to `private var streamTask: Task<Void, Never>?`
+- Updated all references (lines 159, 170, 171)
+
+VERIFICATION:
+- xcodebuild no longer reports errors in TranscriptionServiceTests.swift
+- The original error "overriding property must be as accessible as its enclosing type" for property 'task' is resolved
+
+CURRENT BUILD STATUS:
+- TranscriptionServiceTests.swift: COMPILES SUCCESSFULLY
+- MyVoiceInputApp.swift: Has a separate pre-existing error (RecordingState needs Equatable conformance) - UNRELATED to this task

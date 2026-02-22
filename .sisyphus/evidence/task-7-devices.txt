@@ -1,0 +1,7 @@
+Sat 21 Feb 2026 23:42:58 +08
+30:        static let commonFormat: AVAudioCommonFormat = .pcmFormatFloat32
+54:    func availableInputDevices() -> [AudioDevice] {
+58:    func selectInputDevice(id: String?) {
+245:                  let uid = stringProperty(deviceID, selector: kAudioDevicePropertyDeviceUID)
+258:            if stringProperty(deviceID, selector: kAudioDevicePropertyDeviceUID) == uid {
+267:            mSelector: kAudioHardwarePropertyDevices,

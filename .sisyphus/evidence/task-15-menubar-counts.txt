@@ -1,0 +1,7 @@
+MyVoiceInput: menuBars=2
+  menu bar 1 items=6
+  menu bar 2 items=1
+SystemUIServer: menuBars=0
+ControlCenter: menuBars=1
+  menu bar 1 items=11
+

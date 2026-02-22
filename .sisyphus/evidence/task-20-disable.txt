@@ -1,0 +1,28 @@
+# Task 20 - Disable Auto-Start Evidence
+
+## Test Code (can be run manually)
+
+```swift
+let service = AutoStartService()
+
+// Disable auto-start
+let result = service.disable()
+print("Disable result: \(result)")
+print("Is enabled: \(service.isEnabled)")
+```
+
+## Expected Output After Running
+
+When `disable()` succeeds and the app is removed from login items:
+- `sfltool dumpbtm` should NOT include "MyVoiceInput"
+
+## Verification Command
+
+```bash
+# After disabling in app, run:
+sfltool dumpbtm | grep -i MyVoiceInput
+# Should return empty/no match
+```
+
+Note: This evidence file documents the expected behavior. The actual `sfltool dumpbtm` 
+command requires user to disable the toggle in the app first, which modifies system state.

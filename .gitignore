@@ -1,0 +1,66 @@
+# Xcode
+# https://github.com/github/gitignore/blob/main/Swift.gitignore
+
+## User-defined
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad
+
+## Xcode Workspace
+*.xcworkspace/
+!default.xcworkspace/
+
+## Xcode Project
+*.xcodeproj/
+!MyVoiceInput.xcodeproj/
+
+## Xcode private settings
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.moved-aside
+
+## Derived Data
+DerivedData/
+*.docc.archive
+
+## Xcode - various levels of building
+build/
+!default.build/
+
+# Swift Package Manager
+# https://github.com/apple/swift-package-manager
+.swiftpm/
+Packages/
+Package.resolved
+
+# CocoaPods
+# https://guides.cocoapods.org/using/index.html
+Pods/
+*.xcworkspace
+
+# CocoaPods - Sample/Workspace
+Sample/ iOSObjC/Sample/
+
+# Carthage
+# https://www.github.com/Carthage/Carthage
+Carthage/Build/
+Carthage/Library/
+
+# fastlane
+# https://github.com/fastlane/fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Code Injection
+# https://github.com/nicklockwood/iRate
+iOSInjectionProject/

@@ -1,0 +1,4 @@
+Added 'Settings...' (calls openSettings) and 'Quit' (calls terminate) to MenuBarExtra.
+Verified that Settings button uses the standard environment key path for opening settings.
+Verified that Quit button uses NSApplication.shared.terminate(nil).
+Verified keyboard shortcuts: Cmd+, for Settings, Cmd+Q for Quit.

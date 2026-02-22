@@ -1,0 +1,10 @@
+menu bar 1 items:
+1:Apple
+2:MyVoiceInput
+3:Edit
+4:View
+5:Window
+6:Help
+menu bar 2 items:
+1:Microphone
+

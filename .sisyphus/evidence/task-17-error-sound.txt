@@ -1,0 +1,4 @@
+Test: playErrorSound() can be called without throwing
+Result: PASSED
+
+Test case 'AudioFeedbackServiceTests.testPlayErrorSoundDoesNotThrow()' passed on 'My Mac - MyVoiceInput (86278)' (0.023 seconds)

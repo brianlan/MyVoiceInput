@@ -1,0 +1,27 @@
+# Task 20 - Enable Auto-Start Evidence
+
+## Test Code (can be run manually)
+
+```swift
+let service = AutoStartService()
+
+// Enable auto-start
+let result = service.enable()
+print("Enable result: \(result)")
+print("Is enabled: \(service.isEnabled)")
+```
+
+## Expected Output After Running
+
+When `enable()` succeeds and the app is added to login items:
+- `sfltool dumpbtm` should include "MyVoiceInput"
+
+## Verification Command
+
+```bash
+# After enabling in app, run:
+sfltool dumpbtm | grep -i MyVoiceInput
+```
+
+Note: This evidence file documents the expected behavior. The actual `sfltool dumpbtm` 
+command requires user to enable the toggle in the app first, which modifies system state.

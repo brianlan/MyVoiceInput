@@ -1,0 +1,7 @@
+
+## 2026-02-21T23:50:40.350123
+- Implemented `TranscriptionServiceTests.testTranscribeYieldsStreamChunksFromSSEEvents` in `MyVoiceInputTests/TranscriptionServiceTests.swift`.
+- Stubbed SSE stream emits two JSON data events and `data: [DONE]`, split across chunk boundaries with CRLF/LF mixing.
+- Expected collected deltas: ["Hel", "lo"].
+- Runtime execution blocked: xcodebuild unavailable in this environment (CommandLineTools-only).
+- Blocker output: xcode-select: error: tool xcodebuild requires Xcode, but active developer directory /Library/Developer/CommandLineTools is a command line tools instance

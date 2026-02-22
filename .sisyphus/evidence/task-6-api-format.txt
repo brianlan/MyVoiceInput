@@ -1,0 +1,9 @@
+8:## Content-Type
+12:Content-Type: application/json
+17:Content-Type: text/event-stream; charset=utf-8
+78:### Streaming Response (SSE - Server-Sent Events)
+80:When `stream=true` is set, the response uses SSE format with `data:` prefix.
+122:| Mode | Content-Type | Transfer | Format |
+124:| Non-streaming | `application/json` | Content-Length | Single JSON object |
+125:| Streaming | `text/event-stream` | chunked | SSE with `data:` prefix |
+127:**Key Finding:** The streaming format is **SSE (Server-Sent Events)**, not NDJSON. Each chunk is a complete JSON object prefixed with `data: `.

@@ -1,0 +1,4 @@
+frontmost=iTerm2
+win_count=0
+win_names=
+menu_bar1_items=Apple, MyVoiceInput, Edit, View, Window, Help

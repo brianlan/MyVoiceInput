@@ -1,0 +1,3 @@
+Scenario: Press-and-hold callbacks sequence start->stop for keyDown/keyUp via HotkeyManagerTests.
+BLOCKED: full Xcode.app is required (active developer dir is CommandLineTools).
+Command: xcodebuild -project MyVoiceInput.xcodeproj -scheme MyVoiceInput -destination platform=macOS test

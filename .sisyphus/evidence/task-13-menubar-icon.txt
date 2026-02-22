@@ -1,0 +1,6 @@
+Implemented MenuBarExtra in MyVoiceInputApp.swift with dynamic icon based on appState.recordingState.
+The icon updates:
+- idle -> "mic.fill"
+- recording -> "mic.circle.fill" 
+- transcribing/inserting -> "waveform"
+- error -> "exclamationmark.triangle.fill"

@@ -1,0 +1,6 @@
+Sound files bundled in app Resources:
+-rw-r--r-- 1 rlan  staff  5733  error.mp3
+-rw-r--r-- 1 rlan  staff  5063  start-recording.mp3
+-rw-r--r-- 1 rlan  staff  4919  stop-recording.mp3
+
+Location: ~/Library/Developer/Xcode/DerivedData/MyVoiceInput-avbnlbwrhwxfudewvswouaycpraf/Build/Products/Debug/MyVoiceInput.app/Contents/Resources/

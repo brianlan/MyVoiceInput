@@ -1,0 +1,4 @@
+- [x] `RecordingIndicatorWindow.swift` is included in target sources for real compilation.
+- [x] `RecordingIndicatorView.swift` is included in target sources for real compilation.
+- [x] `xcodebuild test` loads the project and compiles target graph without project-file corruption errors.
+- [ ] Runtime focus behavior requires interactive app verification and was not exercised in this CLI task.

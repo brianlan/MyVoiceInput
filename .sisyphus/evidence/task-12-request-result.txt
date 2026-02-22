@@ -1,0 +1,23 @@
+Task 12 - Permission Request Result Evidence
+Date: 2026-02-21
+
+Build/Test attempt:
+- Command: xcodebuild -project "MyVoiceInput.xcodeproj" -scheme "MyVoiceInput" -destination "platform=macOS" test
+- Result: blocked
+- Error: xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory '/Library/Developer/CommandLineTools' is a command line tools instance
+
+Static request-path validation:
+- requestMicrophonePermission() routes to AVAudioApplication.requestRecordPermission on macOS 14+ and to AVCaptureDevice.requestAccess otherwise.
+- requestAccessibilityPermission() calls AXIsProcessTrustedWithOptions with prompt=true.
+- openAccessibilitySettings() opens x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility.
+
+Mock-based test coverage (no OS prompts):
+- MyVoiceInputTests/PermissionManagerTests.swift validates
+  - mic status mapping for AVAudioApplication and AVCaptureDevice fallback
+  - mic request return values for both API paths
+  - accessibility status and request(prompt=true)
+  - accessibility settings URL opening
+
+Diagnostics:
+- MyVoiceInputTests/PermissionManagerTests.swift: no diagnostics
+- MyVoiceInput/Services/PermissionManager.swift: SourceKit cross-file limitation reports protocol lookup error in this environment

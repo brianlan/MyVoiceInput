@@ -1,0 +1,6 @@
+
+## 2026-02-21T23:50:40.479897
+- Implemented `TranscriptionServiceTests.testTranscribeBuildsMultipartFormRequest` in `MyVoiceInputTests/TranscriptionServiceTests.swift`.
+- Assertions validate multipart boundary, file part (`audio.mp3`, `audio/mpeg`), `model`, `stream=true`, optional `language=auto`, and closing boundary.
+- Runtime execution blocked: xcodebuild unavailable in this environment (CommandLineTools-only).
+- Blocker output: xcode-select: error: tool xcodebuild requires Xcode, but active developer directory /Library/Developer/CommandLineTools is a command line tools instance

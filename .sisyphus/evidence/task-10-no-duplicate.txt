@@ -1,0 +1,3 @@
+Scenario: Repeated keyDown while held triggers start callback exactly once via HotkeyManagerTests.
+BLOCKED: full Xcode.app is required (active developer dir is CommandLineTools).
+Command: xcodebuild -project MyVoiceInput.xcodeproj -scheme MyVoiceInput -destination platform=macOS test

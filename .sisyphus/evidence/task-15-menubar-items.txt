@@ -1,0 +1,4 @@
+-- SystemUIServer menu bar items --
+ERROR:-1719:System Events got an error: Can’t get menu bar 1 of process "SystemUIServer". Invalid index.
+-- ControlCenter menu bar items --
+missing value, missing value, missing value, missing value, missing value, missing value, missing value, missing value, missing value, missing value, missing value

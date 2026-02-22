@@ -1,0 +1,40 @@
+# Evidence for Task 20 - Auto-Start Implementation
+
+## Implementation Summary
+
+Created `MyVoiceInput/Services/AutoStartService.swift` using `SMAppService.mainApp` (macOS 13+).
+
+### Files Created/Modified:
+- `MyVoiceInput/Services/AutoStartService.swift` (new)
+- `MyVoiceInput/AppState.swift` (modified - added wiring)
+- `MyVoiceInput/Views/SettingsView.swift` (modified - sync with actual status)
+- `MyVoiceInput.xcodeproj/project.pbxproj` (modified - added new file)
+
+### Key Implementation Details:
+
+1. **AutoStartService.swift**:
+   - Uses `SMAppService.mainApp` for macOS 13+
+   - `isEnabled` property returns `SMAppService.mainApp.status == .enabled`
+   - `enable()` calls `SMAppService.mainApp.register()`
+   - `disable()` calls `SMAppService.mainApp.unregister()`
+   - Errors are caught and logged, no crashes
+
+2. **AppState.swift Wiring**:
+   - Added `autoStartService` instance to AppState
+   - Added `autoStartIsEnabled` property that delegates to service
+   - `updateSettings()` now calls enable/disable when `autoStartEnabled` changes
+
+3. **SettingsView.swift Sync**:
+   - `loadSettings()` now uses `appState.autoStartIsEnabled` to get actual status
+   - This ensures UI reflects actual SMAppService status, not just stored preference
+
+### Test Verification:
+```
+xcodebuild -project MyVoiceInput.xcodeproj -scheme MyVoiceInput -destination "platform=macOS" test
+```
+Result: **BUILD SUCCEEDED** - All 34 tests passed.
+
+### Manual Verification (requires user interaction):
+1. Enable "Launch at Login" toggle in Settings -> verify with `sfltool dumpbtm`
+2. Disable toggle -> verify with `sfltool dumpbtm`
+3. Restart app -> verify settings toggle reflects actual state

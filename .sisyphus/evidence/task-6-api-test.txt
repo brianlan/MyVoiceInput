@@ -1,0 +1,10 @@
+data: {"id": "transcribe-2b89719e-e903-4799-8a25-21707c8c586b", "object": "transcription.chunk", "created": 1771686432, "model": "/Volumes/AigoP3500/models/lmstudio/models/mlx-community/Qwen3-ASR-0.6B-bf16", "choices": [{"delta": {"content": "language"}}]}
+
+data: {"id": "transcribe-2b89719e-e903-4799-8a25-21707c8c586b", "object": "transcription.chunk", "created": 1771686432, "model": "/Volumes/AigoP3500/models/lmstudio/models/mlx-community/Qwen3-ASR-0.6B-bf16", "choices": [{"delta": {"content": " None"}}]}
+
+data: {"id": "transcribe-2b89719e-e903-4799-8a25-21707c8c586b", "object": "transcription.chunk", "created": 1771686432, "model": "/Volumes/AigoP3500/models/lmstudio/models/mlx-community/Qwen3-ASR-0.6B-bf16", "choices": [{"delta": {"content": "<asr_text>"}}]}
+
+data: {"id": "transcribe-2b89719e-e903-4799-8a25-21707c8c586b", "object": "transcription.chunk", "created": 1771686432, "model": "/Volumes/AigoP3500/models/lmstudio/models/mlx-community/Qwen3-ASR-0.6B-bf16", "choices": [{"delta": {"content": ""}, "finish_reason": "stop", "stop_reason": null}]}
+
+data: [DONE]
+

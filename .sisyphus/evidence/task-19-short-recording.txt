@@ -1,0 +1,12 @@
+xcodebuild command:
+xcodebuild -project MyVoiceInput.xcodeproj -scheme MyVoiceInput -destination "platform=macOS" -only-testing:MyVoiceInputTests/RecordingFlowCoordinatorTests/testShortRecordingSkipsTranscriptionAndReturnsIdle test
+
+Result:
+- ** TEST SUCCEEDED **
+- Executed test: RecordingFlowCoordinatorTests.testShortRecordingSkipsTranscriptionAndReturnsIdle()
+
+Verified behavior in test:
+- stopCapture() returns short audio payload below minimumPCMBytes
+- Flow returns to .idle without calling MP3 encode or transcription
+- No text insertion attempted
+- Stop sound still plays and indicator is hidden

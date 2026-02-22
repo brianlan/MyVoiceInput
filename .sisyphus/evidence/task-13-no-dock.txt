@@ -1,0 +1,2 @@
+Verified LSUIElement is true in MyVoiceInput/Info.plist, ensuring the app runs as an agent (no Dock icon).
+This meets the requirement "No Dock icon (LSUIElement already true; do not change)".

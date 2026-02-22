@@ -1,0 +1,64 @@
+# Task 3: Add KeyboardShortcuts SPM Dependency - Evidence
+
+## Static Verification (Xcode not available)
+
+### xcodebuild Status
+xcodebuild command exists at `/usr/bin/xcodebuild` but requires Xcode.app installation:
+```
+xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory '/Library/Developer/CommandLineTools' is a command line tools instance
+```
+
+**BLOCKER**: Cannot run `xcodebuild -resolvePackageDependencies` or build without Xcode.app installed.
+
+### Static Verification Results
+
+#### 1. XCRemoteSwiftPackageReference (Package Reference)
+```
+A1000050 /* KeyboardShortcuts */ = {
+    isa = XCRemoteSwiftPackageReference;
+    repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts";
+    requirement = {
+        kind = upToNextMajorVersion;
+        minimumVersion = 2.4.0;
+    };
+};
+```
+
+**Update Feb 22, 2026**: Changed from `kind = branch; branch = main;` to `kind = upToNextMajorVersion; minimumVersion = 2.4.0;` for conservative versioning.
+
+#### 2. XCSwiftPackageProductDependency (Product Dependency)
+```
+A1000051 /* KeyboardShortcuts */ = {
+    isa = XCSwiftPackageProductDependency;
+    package = A1000050 /* KeyboardShortcuts */;
+    productName = KeyboardShortcuts;
+};
+```
+
+#### 3. Target Dependency (MyVoiceInput target)
+```
+A1000055 /* PBXTargetDependency */ = {
+    isa = PBXTargetDependency;
+    productRef = A1000051 /* KeyboardShortcuts */;
+};
+```
+
+#### 4. Frameworks Build Phase
+```
+A1000052 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = A1000051 /* KeyboardShortcuts */; };
+```
+
+### Files Modified
+- `MyVoiceInput.xcodeproj/project.pbxproj` - Added SPM package reference and product dependency
+
+### Verification Commands (for when Xcode is available)
+```bash
+# Resolve dependencies
+xcodebuild -project MyVoiceInput.xcodeproj -scheme MyVoiceInput -resolvePackageDependencies
+
+# Build
+xcodebuild -project MyVoiceInput.xcodeproj -scheme MyVoiceInput -configuration Debug build
+
+# Verify via grep
+rg "KeyboardShortcuts" MyVoiceInput.xcodeproj/project.pbxproj
+```

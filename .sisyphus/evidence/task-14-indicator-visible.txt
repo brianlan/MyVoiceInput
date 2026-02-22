@@ -1,0 +1,4 @@
+- [x] `RecordingIndicatorView.swift` is present in `MyVoiceInput` -> `Views` group.
+- [x] `RecordingIndicatorWindow.swift` is present in `MyVoiceInput` -> `Views` group.
+- [x] Both indicator files are included in `PBXSourcesBuildPhase A1000006` for target `MyVoiceInput`.
+- [x] `PBXBuildFile` entries exist for `A1000071` and `A1000073`, so indicator sources are buildable.

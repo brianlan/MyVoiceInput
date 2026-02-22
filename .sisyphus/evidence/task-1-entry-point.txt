@@ -1,0 +1,36 @@
+Task 1: Entry Point Verification
+=================================
+
+File: MyVoiceInput/MyVoiceInputApp.swift
+Content:
+--------
+import SwiftUI
+
+@main
+struct MyVoiceInputApp: App {
+    var body: some Scene {
+        MenuBarExtra("MyVoiceInput", systemImage: "waveform") {
+            Text("MyVoiceInput")
+                .font(.headline)
+            Divider()
+            Button("Quit") {
+                NSApplication.shared.terminate(nil)
+            }
+        }
+    }
+}
+
+Verification:
+-------------
+- @main attribute present: YES
+- SwiftUI App lifecycle: YES (struct MyVoiceInputApp: App)
+- MenuBarExtra present: YES
+- Deployment target macOS 14.0: YES (set in project.pbxproj)
+- LSUIElement set: YES (INFOPLIST_KEY_LSUIElement = YES in project.pbxproj)
+
+Entry Point Confirmed:
+--------------------
+- Uses @main for app entry point
+- MenuBarExtra creates status bar item (no dock icon due to LSUIElement)
+- System image "waveform" for menu bar icon
+- Placeholder quit button

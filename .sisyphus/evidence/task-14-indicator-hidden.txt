@@ -1,0 +1,4 @@
+- [x] Indicator view/window source files are attached to the `MyVoiceInput` app target sources phase.
+- [x] `xcodebuild -list` and `-resolvePackageDependencies` succeed after pbxproj ID de-collision.
+- [x] `project.pbxproj` no longer reuses `A1000012`..`A1000017` for both file refs and configuration objects.
+- [x] Task 14 build evidence captured in `.sisyphus/evidence/task-14-xcodebuild.txt`.

@@ -1,0 +1,3 @@
+Scenario: Shortcut name stability and wrapper getShortcut invocation on init via HotkeyManagerTests.
+BLOCKED: full Xcode.app is required (active developer dir is CommandLineTools).
+Command: xcodebuild -project MyVoiceInput.xcodeproj -scheme MyVoiceInput -destination platform=macOS test

@@ -1,0 +1,3 @@
+frontmost=iTerm2
+window_count=0
+window_names=

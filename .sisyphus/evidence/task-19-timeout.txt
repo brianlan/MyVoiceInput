@@ -1,0 +1,12 @@
+xcodebuild command:
+xcodebuild -project MyVoiceInput.xcodeproj -scheme MyVoiceInput -destination "platform=macOS" -only-testing:MyVoiceInputTests/RecordingFlowCoordinatorTests/testTimeoutErrorSetsErrorStateAndCleansIndicator test
+
+Result:
+- ** TEST SUCCEEDED **
+- Executed test: RecordingFlowCoordinatorTests.testTimeoutErrorSetsErrorStateAndCleansIndicator()
+
+Verified behavior in test:
+- Mock transcription throws URLError(.timedOut)
+- App state transitions to .error(String)
+- Recording indicator hide() called
+- Error sound playErrorSound() called
