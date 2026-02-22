@@ -50,13 +50,26 @@ struct SettingsView: View {
         let settings = appState.settings
         self.apiEndpoint = settings.apiEndpoint
         self.modelName = settings.modelName
-        self.selectedMicrophoneID = settings.selectedMicrophoneID ?? ""
+        // Validate saved microphone ID exists in available devices
+        let savedID = settings.selectedMicrophoneID
+        if let savedID, !savedID.isEmpty {
+            let service = AudioCaptureService()
+            let devices = service.availableInputDevices()
+            let deviceExists = devices.contains { $0.id == savedID }
+            self.selectedMicrophoneID = deviceExists ? savedID : ""
+        } else {
+            self.selectedMicrophoneID = ""
+        }
         self.autoStartEnabled = appState.autoStartIsEnabled
     }
     
     private func loadInputDevices() {
         let service = AudioCaptureService()
         self.inputDevices = service.availableInputDevices()
+        // If saved ID is not in devices, clear selection
+        if !selectedMicrophoneID.isEmpty && !inputDevices.contains(where: { $0.id == selectedMicrophoneID }) {
+            selectedMicrophoneID = ""
+        }
     }
     
     private func saveSettings() {
@@ -69,12 +82,8 @@ struct SettingsView: View {
             isValid = false
         }
         
-        if !modelName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            modelNameError = nil
-        } else {
-            modelNameError = "Model name cannot be empty"
-            isValid = false
-        }
+        // Model name can be empty (optional)
+        modelNameError = nil
         
         if isValid {
             let newSettings = AppSettings(

@@ -1,4 +1,5 @@
 import Foundation
+import os.log
 
 enum TranscriptionServiceError: Error {
     case invalidEndpoint(String)
@@ -12,6 +13,7 @@ enum TranscriptionServiceError: Error {
 final class TranscriptionService: TranscriptionServiceProtocol, @unchecked Sendable {
     private let session: URLSession
     private let defaultLanguage: String?
+    private let logger = Logger(subsystem: "com.myvoiceinput.app", category: "transcription")
 
     init(session: URLSession = .shared, defaultLanguage: String? = "auto") {
         self.session = session
@@ -19,6 +21,8 @@ final class TranscriptionService: TranscriptionServiceProtocol, @unchecked Senda
     }
 
     func transcribe(audioData: Data, endpoint: String, model: String) async throws -> AsyncStream<String> {
+        logger.info("Starting transcription - endpoint: \(endpoint), model: '\(model)', audio size: \(audioData.count) bytes")
+        
         guard let url = URL(string: endpoint) else {
             throw TranscriptionServiceError.invalidEndpoint(endpoint)
         }
@@ -36,6 +40,14 @@ final class TranscriptionService: TranscriptionServiceProtocol, @unchecked Senda
             throw TranscriptionServiceError.invalidHTTPResponse
         }
         guard (200..<300).contains(httpResponse.statusCode) else {
+            // Read error response body for logging
+            var errorBody = ""
+            for try await byte in bytes {
+                if let char = String(bytes: [byte], encoding: .utf8) {
+                    errorBody.append(char)
+                }
+            }
+            logger.error("HTTP error \(httpResponse.statusCode): \(errorBody)")
             throw TranscriptionServiceError.unexpectedStatusCode(httpResponse.statusCode)
         }
 
@@ -79,7 +91,7 @@ final class TranscriptionService: TranscriptionServiceProtocol, @unchecked Senda
         }
     }
 
-    private func makeMultipartBody(audioData: Data, model: String, boundary: String, language: String?) -> Data {
+    private func makeMultipartBody(audioData: Data, model: String?, boundary: String, language: String?) -> Data {
         var body = Data()
 
         body.appendMultipartLine("--\(boundary)")
@@ -89,22 +101,25 @@ final class TranscriptionService: TranscriptionServiceProtocol, @unchecked Senda
         body.append(audioData)
         body.appendMultipartLine("")
 
-        body.appendMultipartLine("--\(boundary)")
-        body.appendMultipartLine("Content-Disposition: form-data; name=\"model\"")
-        body.appendMultipartLine("")
-        body.appendMultipartLine(model)
+        // Only add model if provided and not empty
+        if let model, !model.isEmpty {
+            body.appendMultipartLine("--\(boundary)")
+            body.appendMultipartLine("Content-Disposition: form-data; name=\"model\"")
+            body.appendMultipartLine("")
+            body.appendMultipartLine(model)
+        }
 
         body.appendMultipartLine("--\(boundary)")
         body.appendMultipartLine("Content-Disposition: form-data; name=\"stream\"")
         body.appendMultipartLine("")
         body.appendMultipartLine("true")
 
-        if let language {
-            body.appendMultipartLine("--\(boundary)")
-            body.appendMultipartLine("Content-Disposition: form-data; name=\"language\"")
-            body.appendMultipartLine("")
-            body.appendMultipartLine(language)
-        }
+        // Always send language as auto if not specified
+        let lang = language ?? "auto"
+        body.appendMultipartLine("--\(boundary)")
+        body.appendMultipartLine("Content-Disposition: form-data; name=\"language\"")
+        body.appendMultipartLine("")
+        body.appendMultipartLine(lang)
 
         body.appendMultipartLine("--\(boundary)--")
         return body
@@ -219,21 +234,28 @@ private struct SSEParser {
             return [.done]
         }
 
-        guard let payloadData = dataPayload.data(using: .utf8) else {
-            throw TranscriptionServiceError.malformedJSONPayload
-        }
-
-        let payload: TranscriptionChunkPayload
-        do {
-            payload = try JSONDecoder().decode(TranscriptionChunkPayload.self, from: payloadData)
-        } catch {
-            throw TranscriptionServiceError.malformedJSONPayload
-        }
-
-        guard let content = payload.choices.first?.delta.content else {
+        // Try to parse as JSON with expected format
+        guard let payloadData = dataPayload.data(using: .utf8),
+              let payload = try? JSONDecoder().decode(TranscriptionChunkPayload.self, from: payloadData),
+              let content = payload.choices.first?.delta.content else {
+            print("Failed to parse: \(dataPayload)")
             return []
         }
-
+        
+        // Filter out metadata and tags - only return actual transcription content
+        // The API sends: "language", " English", "<asr_text>", then the actual text
+        let trimmedContent = content.trimmingCharacters(in: .whitespaces)
+        
+        // Skip these metadata markers
+        if trimmedContent == "language" || 
+           trimmedContent == "English" ||
+           trimmedContent == "Chinese" ||
+           trimmedContent == "<asr_text>" ||
+           trimmedContent.hasPrefix("<") && trimmedContent.hasSuffix(">") {
+            return []
+        }
+        
+        // Return the actual transcription text
         return [.delta(content)]
     }
 }
@@ -247,5 +269,15 @@ private struct TranscriptionChunkPayload: Decodable {
 
     struct Delta: Decodable {
         let content: String?
+    }
+}
+
+// Alternative payload for APIs that return {"text": "..."} or {"delta": {"text": "..."}}
+private struct AlternativeTranscriptionPayload: Decodable {
+    let text: String?
+    let delta: DeltaPayload?
+
+    struct DeltaPayload: Decodable {
+        let text: String?
     }
 }

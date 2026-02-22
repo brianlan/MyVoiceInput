@@ -12,7 +12,7 @@ struct AppSettings: Sendable {
         hotkeyKeyCode: 49,
         hotkeyModifiers: 0,
         apiEndpoint: "http://127.0.0.1:8010/v1/audio/transcriptions",
-        modelName: "base",
+        modelName: "",
         selectedMicrophoneID: nil,
         autoStartEnabled: false
     )
