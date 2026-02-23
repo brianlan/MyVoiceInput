@@ -6,6 +6,7 @@ struct SettingsView: View {
     
     @State private var apiEndpoint: String = ""
     @State private var modelName: String = ""
+    @State private var transcriptionLanguage: String = ""
     @State private var selectedMicrophoneID: String = ""
     @State private var autoStartEnabled: Bool = false
     @State private var inputDevices: [AudioDevice] = []
@@ -25,7 +26,13 @@ struct SettingsView: View {
                     Label("Audio", systemImage: "mic")
                 }
             
-            APISettingsView(endpoint: $apiEndpoint, modelName: $modelName, endpointError: endpointError, modelNameError: modelNameError)
+            APISettingsView(
+                endpoint: $apiEndpoint,
+                modelName: $modelName,
+                transcriptionLanguage: $transcriptionLanguage,
+                endpointError: endpointError,
+                modelNameError: modelNameError
+            )
                 .tabItem {
                     Label("API", systemImage: "network")
                 }
@@ -42,6 +49,7 @@ struct SettingsView: View {
         }
         .onChange(of: apiEndpoint) { _, _ in saveSettings() }
         .onChange(of: modelName) { _, _ in saveSettings() }
+        .onChange(of: transcriptionLanguage) { _, _ in saveSettings() }
         .onChange(of: selectedMicrophoneID) { _, _ in saveSettings() }
         .onChange(of: autoStartEnabled) { _, _ in saveSettings() }
     }
@@ -50,6 +58,7 @@ struct SettingsView: View {
         let settings = appState.settings
         self.apiEndpoint = settings.apiEndpoint
         self.modelName = settings.modelName
+        self.transcriptionLanguage = settings.transcriptionLanguage ?? ""
         // Validate saved microphone ID exists in available devices
         let savedID = settings.selectedMicrophoneID
         if let savedID, !savedID.isEmpty {
@@ -91,6 +100,7 @@ struct SettingsView: View {
                 hotkeyModifiers: appState.settings.hotkeyModifiers,
                 apiEndpoint: apiEndpoint,
                 modelName: modelName,
+                transcriptionLanguage: transcriptionLanguage.isEmpty ? nil : transcriptionLanguage,
                 selectedMicrophoneID: selectedMicrophoneID.isEmpty ? nil : selectedMicrophoneID,
                 autoStartEnabled: autoStartEnabled
             )
@@ -135,6 +145,7 @@ struct AudioSettingsView: View {
 struct APISettingsView: View {
     @Binding var endpoint: String
     @Binding var modelName: String
+    @Binding var transcriptionLanguage: String
     var endpointError: String?
     var modelNameError: String?
     
@@ -158,6 +169,13 @@ struct APISettingsView: View {
                         .foregroundStyle(.red)
                         .font(.caption)
                 }
+
+                Picker("Language:", selection: $transcriptionLanguage) {
+                    Text("Auto Detect").tag("")
+                    Text("English").tag("en")
+                    Text("Chinese").tag("zh")
+                }
+                .help("Force transcription language when auto-detection is inaccurate")
             }
         }
         .formStyle(.grouped)

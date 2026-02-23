@@ -26,6 +26,7 @@ final class AppState {
     var recordingState: RecordingState = .idle
     var permissionStatus: PermissionStatus = .unknown
     var transientFeedbackMessage: String?
+    private(set) var settingsVersion: Int = 0
 
     @ObservationIgnored
     private var transientFeedbackTask: Task<Void, Never>?
@@ -34,6 +35,8 @@ final class AppState {
     @AppStorage("endpoint") private var endpointStorage: String = AppSettings.default.apiEndpoint
     @ObservationIgnored
     @AppStorage("modelName") private var modelNameStorage: String = AppSettings.default.modelName
+    @ObservationIgnored
+    @AppStorage("transcriptionLanguage") private var transcriptionLanguageStorage: String = ""
     @ObservationIgnored
     @AppStorage("selectedMicrophoneID") private var selectedMicrophoneIDStorage: String = ""
     @ObservationIgnored
@@ -57,6 +60,7 @@ final class AppState {
                 hotkeyModifiers: UInt(clamping: hotkeyModifiersStorage),
                 apiEndpoint: endpointStorage,
                 modelName: modelNameStorage,
+                transcriptionLanguage: transcriptionLanguageStorage.isEmpty ? nil : transcriptionLanguageStorage,
                 selectedMicrophoneID: selectedMicrophoneIDStorage.isEmpty ? nil : selectedMicrophoneIDStorage,
                 autoStartEnabled: autoStartEnabledStorage
             )
@@ -97,6 +101,7 @@ final class AppState {
         
         endpointStorage = newSettings.apiEndpoint
         modelNameStorage = newSettings.modelName
+        transcriptionLanguageStorage = newSettings.transcriptionLanguage ?? ""
         selectedMicrophoneIDStorage = newSettings.selectedMicrophoneID ?? ""
         hotkeyKeyCodeStorage = Int(newSettings.hotkeyKeyCode)
         hotkeyModifiersStorage = Int(newSettings.hotkeyModifiers)
@@ -108,8 +113,9 @@ final class AppState {
                 _ = autoStartService.disable()
             }
         }
-        
+
         autoStartEnabledStorage = newSettings.autoStartEnabled
+        settingsVersion &+= 1
     }
 }
 

@@ -5,6 +5,7 @@ struct AppSettings: Sendable {
     var hotkeyModifiers: UInt
     var apiEndpoint: String
     var modelName: String
+    var transcriptionLanguage: String?
     var selectedMicrophoneID: String?
     var autoStartEnabled: Bool
 
@@ -13,6 +14,7 @@ struct AppSettings: Sendable {
         hotkeyModifiers: 0,
         apiEndpoint: "http://127.0.0.1:8010/v1/audio/transcriptions",
         modelName: "",
+        transcriptionLanguage: nil,
         selectedMicrophoneID: nil,
         autoStartEnabled: false
     )

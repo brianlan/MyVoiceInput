@@ -35,7 +35,8 @@ final class TranscriptionServiceTests: XCTestCase {
         let stream = try await service.transcribe(
             audioData: Data([0x01, 0x02, 0x03]),
             endpoint: "http://localhost/v1/audio/transcriptions",
-            model: "base"
+            model: "base",
+            language: nil
         )
 
         var received: [String] = []
@@ -57,7 +58,8 @@ final class TranscriptionServiceTests: XCTestCase {
             _ = try await service.transcribe(
                 audioData: Data([0x0]),
                 endpoint: "http://localhost/v1/audio/transcriptions",
-                model: "base"
+                model: "base",
+                language: nil
             )
             XCTFail("Expected transcribe to throw for connection failure")
         } catch {
@@ -86,7 +88,8 @@ final class TranscriptionServiceTests: XCTestCase {
         let stream = try await service.transcribe(
             audioData: audioData,
             endpoint: "http://localhost/v1/audio/transcriptions",
-            model: "qwen-asr"
+            model: "qwen-asr",
+            language: "en"
         )
 
         for await _ in stream {
@@ -115,10 +118,41 @@ final class TranscriptionServiceTests: XCTestCase {
         XCTAssertTrue(bodyString.contains("\r\ntrue\r\n"))
         
         XCTAssertTrue(bodyString.contains("Content-Disposition: form-data; name=\"language\""))
-        XCTAssertTrue(bodyString.contains("\r\nauto\r\n"))
+        XCTAssertTrue(bodyString.contains("\r\nen\r\n"))
         
         XCTAssertTrue(bodyString.contains("--\(boundary)--\r\n"))
         XCTAssertNotNil(body.range(of: audioData))
+    }
+
+    func testTranscribeOmitsLanguageFieldWhenNotProvided() async throws {
+        URLProtocolStub.handler = { request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: "HTTP/1.1",
+                headerFields: ["Content-Type": "text/event-stream"]
+            )!
+            return .stream(response, [Data("data: [DONE]\n\n".utf8)])
+        }
+
+        let service = makeService()
+        let stream = try await service.transcribe(
+            audioData: Data([0x01]),
+            endpoint: "http://localhost/v1/audio/transcriptions",
+            model: "",
+            language: nil
+        )
+
+        for await _ in stream {
+        }
+
+        guard let request = URLProtocolStub.lastRequest else {
+            return XCTFail("Expected captured request")
+        }
+
+        let body = extractRequestBody(from: request)
+        let bodyString = String(decoding: body, as: UTF8.self)
+        XCTAssertFalse(bodyString.contains("Content-Disposition: form-data; name=\"language\""))
     }
 
     private func makeService() -> TranscriptionService {

@@ -39,6 +39,7 @@ final class AudioCaptureService: AudioCaptureServiceProtocol, @unchecked Sendabl
 
     private var bufferedPCMData = Data()
     private var selectedInputDeviceID: String?
+    private var pendingWarningMessage: String?
     private var capturing = false
 
     var isCapturing: Bool {
@@ -65,17 +66,37 @@ final class AudioCaptureService: AudioCaptureServiceProtocol, @unchecked Sendabl
         lock.unlock()
     }
 
+    func consumePendingWarning() -> String? {
+        withLockedMutation {
+            defer { pendingWarningMessage = nil }
+            return pendingWarningMessage
+        }
+    }
+
     func startCapture() async throws {
         if isCapturing {
             return
         }
 
+        withLockedMutation {
+            pendingWarningMessage = nil
+        }
+
         let selectedID: String? = withLockedValue { selectedInputDeviceID }
         if let selectedID {
-            guard let resolvedDeviceID = deviceIDResolver(selectedID) else {
-                throw AudioCaptureServiceError.invalidInputDeviceID(selectedID)
+            if let resolvedDeviceID = deviceIDResolver(selectedID) {
+                do {
+                    try engine.setInputDevice(resolvedDeviceID)
+                } catch {
+                    withLockedMutation {
+                        pendingWarningMessage = "Selected microphone is unavailable. Using system default input."
+                    }
+                }
+            } else {
+                withLockedMutation {
+                    pendingWarningMessage = "Selected microphone is unavailable. Using system default input."
+                }
             }
-            try engine.setInputDevice(resolvedDeviceID)
         }
 
         let inputFormat = engine.inputNode.inputFormat(forBus: 0)

@@ -47,7 +47,7 @@ final class AudioCaptureServiceTests: XCTestCase {
         XCTAssertEqual(fakeEngine.stopCallCount, 0)
     }
 
-    func testStartCaptureThrowsForUnknownSelectedInputDeviceID() async {
+    func testStartCaptureFallsBackToDefaultForUnknownSelectedInputDeviceID() async throws {
         let fakeNode = FakeAudioInputNode()
         let fakeEngine = FakeAudioEngine(inputNode: fakeNode)
         let service = AudioCaptureService(
@@ -58,14 +58,36 @@ final class AudioCaptureServiceTests: XCTestCase {
 
         service.selectInputDevice(id: "missing")
 
-        do {
-            try await service.startCapture()
-            XCTFail("Expected startCapture to throw")
-        } catch let error as AudioCaptureServiceError {
-            XCTAssertEqual(error, .invalidInputDeviceID("missing"))
-        } catch {
-            XCTFail("Unexpected error: \(error)")
-        }
+        try await service.startCapture()
+
+        XCTAssertTrue(service.isCapturing)
+        XCTAssertEqual(
+            service.consumePendingWarning(),
+            "Selected microphone is unavailable. Using system default input."
+        )
+        XCTAssertNil(service.consumePendingWarning())
+    }
+
+    func testStartCaptureFallsBackToDefaultWhenSetInputDeviceFails() async throws {
+        let fakeNode = FakeAudioInputNode()
+        let fakeEngine = FakeAudioEngine(inputNode: fakeNode)
+        fakeEngine.shouldFailSetInputDevice = true
+        let service = AudioCaptureService(
+            engine: fakeEngine,
+            inputDevicesProvider: { [AudioDevice(name: "External", id: "external")] },
+            deviceIDResolver: { _ in AudioDeviceID(42) }
+        )
+
+        service.selectInputDevice(id: "external")
+
+        try await service.startCapture()
+
+        XCTAssertTrue(service.isCapturing)
+        XCTAssertEqual(fakeEngine.setInputDeviceCallCount, 1)
+        XCTAssertEqual(
+            service.consumePendingWarning(),
+            "Selected microphone is unavailable. Using system default input."
+        )
     }
 
     private func makeBuffer(samples: [Float32]) -> AVAudioPCMBuffer {
@@ -121,7 +143,9 @@ private final class FakeAudioEngine: AudioEngineProtocol {
 
     private(set) var startCallCount = 0
     private(set) var stopCallCount = 0
+    private(set) var setInputDeviceCallCount = 0
     var shouldFailStart = false
+    var shouldFailSetInputDevice = false
     var isRunning = false
     let inputNode: AudioEngineInputNodeProtocol
 
@@ -129,7 +153,12 @@ private final class FakeAudioEngine: AudioEngineProtocol {
         self.inputNode = inputNode
     }
 
-    func setInputDevice(_ deviceID: AudioDeviceID) throws {}
+    func setInputDevice(_ deviceID: AudioDeviceID) throws {
+        setInputDeviceCallCount += 1
+        if shouldFailSetInputDevice {
+            throw AudioCaptureServiceError.unableToSelectInputDevice(-1)
+        }
+    }
 
     func prepare() {}
 

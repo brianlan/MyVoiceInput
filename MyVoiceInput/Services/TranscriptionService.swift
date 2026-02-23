@@ -12,23 +12,22 @@ enum TranscriptionServiceError: Error {
 
 final class TranscriptionService: TranscriptionServiceProtocol, @unchecked Sendable {
     private let session: URLSession
-    private let defaultLanguage: String?
     private let logger = Logger(subsystem: "com.myvoiceinput.app", category: "transcription")
 
-    init(session: URLSession = .shared, defaultLanguage: String? = "auto") {
+    init(session: URLSession = .shared) {
         self.session = session
-        self.defaultLanguage = defaultLanguage
     }
 
-    func transcribe(audioData: Data, endpoint: String, model: String) async throws -> AsyncStream<String> {
-        logger.info("Starting transcription - endpoint: \(endpoint), model: '\(model)', audio size: \(audioData.count) bytes")
+    func transcribe(audioData: Data, endpoint: String, model: String, language: String?) async throws -> AsyncStream<String> {
+        let languageCode = language?.trimmingCharacters(in: .whitespacesAndNewlines)
+        logger.info("Starting transcription - endpoint: \(endpoint), model: '\(model)', language: '\(languageCode ?? "auto")', audio size: \(audioData.count) bytes")
         
         guard let url = URL(string: endpoint) else {
             throw TranscriptionServiceError.invalidEndpoint(endpoint)
         }
 
         let boundary = "Boundary-\(UUID().uuidString)"
-        let body = makeMultipartBody(audioData: audioData, model: model, boundary: boundary, language: defaultLanguage)
+        let body = makeMultipartBody(audioData: audioData, model: model, boundary: boundary, language: languageCode)
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -114,12 +113,12 @@ final class TranscriptionService: TranscriptionServiceProtocol, @unchecked Senda
         body.appendMultipartLine("")
         body.appendMultipartLine("true")
 
-        // Always send language as auto if not specified
-        let lang = language ?? "auto"
-        body.appendMultipartLine("--\(boundary)")
-        body.appendMultipartLine("Content-Disposition: form-data; name=\"language\"")
-        body.appendMultipartLine("")
-        body.appendMultipartLine(lang)
+        if let language, !language.isEmpty {
+            body.appendMultipartLine("--\(boundary)")
+            body.appendMultipartLine("Content-Disposition: form-data; name=\"language\"")
+            body.appendMultipartLine("")
+            body.appendMultipartLine(language)
+        }
 
         body.appendMultipartLine("--\(boundary)--")
         return body

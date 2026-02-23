@@ -9,6 +9,7 @@ final class RecordingFlowCoordinatorTests: XCTestCase {
         var settings = appState.settings
         settings.apiEndpoint = "http://localhost/test"
         settings.modelName = "stream-model"
+        settings.transcriptionLanguage = "en"
         appState.updateSettings(settings)
 
         let hotkey = TestHotkeyManager()
@@ -45,6 +46,7 @@ final class RecordingFlowCoordinatorTests: XCTestCase {
         XCTAssertEqual(encoder.lastPCMInput, Data(repeating: 0x01, count: 8_192))
         XCTAssertEqual(transcription.lastEndpoint, "http://localhost/test")
         XCTAssertEqual(transcription.lastModel, "stream-model")
+        XCTAssertEqual(transcription.lastLanguage, "en")
         XCTAssertEqual(transcription.lastAudioData, Data([0xAA, 0xBB]))
         XCTAssertEqual(insertion.insertedTexts, ["hello", " world"])
         XCTAssertEqual(feedback.startCalls, 1)
@@ -142,6 +144,75 @@ final class RecordingFlowCoordinatorTests: XCTestCase {
         _ = coordinator
     }
 
+    func testSettingsChangeAppliesNewSelectedMicrophone() async {
+        let appState = AppState()
+        let hotkey = TestHotkeyManager()
+        let capture = TestAudioCaptureService(stopCaptureData: Data(repeating: 0x05, count: 8_192))
+        let encoder = TestMP3EncoderService(encodedOutput: Data([0x22]))
+        let transcription = TestTranscriptionService(streamChunks: [])
+        let insertion = TestTextInsertionService()
+        let feedback = TestAudioFeedbackService()
+        let indicator = TestRecordingIndicatorController()
+
+        let coordinator = RecordingFlowCoordinator(
+            appState: appState,
+            hotkeyManager: hotkey,
+            audioCaptureService: capture,
+            mp3EncoderService: encoder,
+            transcriptionService: transcription,
+            textInsertionService: insertion,
+            errorHandlingService: makeNonBlockingErrorHandlingService(),
+            audioFeedbackService: feedback,
+            recordingIndicatorController: indicator,
+            minimumPCMBytes: 32
+        )
+
+        var settings = appState.settings
+        settings.selectedMicrophoneID = "external-mic"
+        appState.updateSettings(settings)
+
+        await waitUntil("selected microphone applied") {
+            capture.selectedInputDeviceIDs.last == "external-mic"
+        }
+
+        _ = coordinator
+    }
+
+    func testCaptureWarningIsShownAsTransientFeedback() async {
+        let appState = AppState()
+        let hotkey = TestHotkeyManager()
+        let capture = TestAudioCaptureService(stopCaptureData: Data(repeating: 0x01, count: 8_192))
+        capture.pendingWarningMessage = "Selected microphone is unavailable. Using system default input."
+        let encoder = TestMP3EncoderService(encodedOutput: Data([0xAA]))
+        let transcription = TestTranscriptionService(streamChunks: [])
+        let insertion = TestTextInsertionService()
+        let feedback = TestAudioFeedbackService()
+        let indicator = TestRecordingIndicatorController()
+
+        let coordinator = RecordingFlowCoordinator(
+            appState: appState,
+            hotkeyManager: hotkey,
+            audioCaptureService: capture,
+            mp3EncoderService: encoder,
+            transcriptionService: transcription,
+            textInsertionService: insertion,
+            errorHandlingService: makeNonBlockingErrorHandlingService(),
+            audioFeedbackService: feedback,
+            recordingIndicatorController: indicator,
+            minimumPCMBytes: 32
+        )
+
+        hotkey.triggerStart()
+        await waitUntil("recording started") { appState.recordingState == .recording }
+        await waitUntil("warning shown") {
+            appState.transientFeedbackMessage == "Selected microphone is unavailable. Using system default input."
+        }
+
+        XCTAssertEqual(feedback.errorCalls, 0)
+
+        _ = coordinator
+    }
+
     private func waitUntil(_ description: String, timeoutNanoseconds: UInt64 = 2_000_000_000, condition: @escaping @MainActor () -> Bool) async {
         let start = ContinuousClock.now
         while true {
@@ -173,16 +244,25 @@ private final class TestHotkeyManager: HotkeyManaging {
 private final class TestAudioCaptureService: AudioCaptureServiceProtocol, @unchecked Sendable {
     private(set) var startCaptureCallCount = 0
     private(set) var stopCaptureCallCount = 0
+    private(set) var selectedInputDeviceIDs: [String?] = []
 
     var startError: Error?
     var stopCaptureData: Data?
+    var pendingWarningMessage: String?
     var isCapturing: Bool { false }
 
     init(stopCaptureData: Data?) {
         self.stopCaptureData = stopCaptureData
     }
 
-    func selectInputDevice(id: String?) {}
+    func selectInputDevice(id: String?) {
+        selectedInputDeviceIDs.append(id)
+    }
+
+    func consumePendingWarning() -> String? {
+        defer { pendingWarningMessage = nil }
+        return pendingWarningMessage
+    }
 
     func startCapture() async throws {
         startCaptureCallCount += 1
@@ -226,6 +306,7 @@ private final class TestTranscriptionService: TranscriptionServiceProtocol, @unc
     private(set) var lastAudioData: Data?
     private(set) var lastEndpoint: String?
     private(set) var lastModel: String?
+    private(set) var lastLanguage: String?
 
     let streamChunks: [String]
     var transcribeError: Error?
@@ -235,11 +316,12 @@ private final class TestTranscriptionService: TranscriptionServiceProtocol, @unc
         self.transcribeError = transcribeError
     }
 
-    func transcribe(audioData: Data, endpoint: String, model: String) async throws -> AsyncStream<String> {
+    func transcribe(audioData: Data, endpoint: String, model: String, language: String?) async throws -> AsyncStream<String> {
         transcribeCallCount += 1
         lastAudioData = audioData
         lastEndpoint = endpoint
         lastModel = model
+        lastLanguage = language
 
         if let transcribeError {
             throw transcribeError

@@ -95,6 +95,9 @@ final class RecordingFlowCoordinator {
 
             do {
                 try await self.audioCaptureService.startCapture()
+                if let warning = self.audioCaptureService.consumePendingWarning() {
+                    self.appState.showTransientFeedback(warning)
+                }
                 self.recordingDidStart()
             } catch is CancellationError {
                 await self.cleanupAfterCancellation()
@@ -136,7 +139,8 @@ final class RecordingFlowCoordinator {
                 let stream = try await self.transcriptionService.transcribe(
                     audioData: encodedAudio,
                     endpoint: settings.apiEndpoint,
-                    model: settings.modelName
+                    model: settings.modelName,
+                    language: settings.transcriptionLanguage
                 )
 
                 try await self.insertStreamedText(stream)
@@ -234,7 +238,7 @@ final class RecordingFlowCoordinator {
 
     private func observeSettings() {
         withObservationTracking {
-            _ = appState.settings
+            _ = appState.settingsVersion
         } onChange: { [weak self] in
             Task { @MainActor in
                 guard let self else { return }
